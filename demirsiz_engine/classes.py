@@ -5,7 +5,7 @@ from . import functions
 SCALE_FACTOR=3
 
 class Border(pygame.sprite.Sprite):
-    def __init__(self,pos_x,pos_y,width,height,color,isWallJumpable=True):
+    def __init__(self,pos_x,pos_y,width,height,color,is_wall_jumpable=True):
         pygame.sprite.Sprite.__init__(self)
 
         self.pos_x=pos_x
@@ -15,7 +15,7 @@ class Border(pygame.sprite.Sprite):
         self.width=width
         self.color=color
         
-        self.isWallJumpable=isWallJumpable
+        self.is_wall_jumpable=is_wall_jumpable
         
         self.image=pygame.Surface((width,height))
         self.image.fill(color)
@@ -24,13 +24,13 @@ class Border(pygame.sprite.Sprite):
         self.rect.topleft=(self.pos_x,self.pos_y)
 
     @staticmethod
-    def calculateBorders(screen,borderThickness):
-        topBorder=Border(0,0,screen.get_width(),borderThickness,(0,0,0))
-        bottomBorder=Border(0,screen.get_height()-borderThickness,screen.get_width(),borderThickness,(0,0,0))
-        leftBorder=Border(0,0,borderThickness,screen.get_height(),(0,0,0))
-        rightBorder=Border(screen.get_width()-borderThickness,0,borderThickness,screen.get_height(),(0,0,0))
+    def calculate_borders(screen,border_thickness):
+        top_border=Border(0,0,screen.get_width(),border_thickness,(0,0,0))
+        bottom_border=Border(0,screen.get_height()-border_thickness,screen.get_width(),border_thickness,(0,0,0))
+        left_border=Border(0,0,border_thickness,screen.get_height(),(0,0,0))
+        right_border=Border(screen.get_width()-border_thickness,0,border_thickness,screen.get_height(),(0,0,0))
 
-        return (topBorder,bottomBorder,leftBorder,rightBorder)
+        return (top_border,bottom_border,left_border,right_border)
 
 class Mob(pygame.sprite.Sprite):
     def __init__(
@@ -47,12 +47,12 @@ class Mob(pygame.sprite.Sprite):
         width=10,
         length=25,
         color=(0,0,0),
-        isAlive=True,
-        jumpStr=1,
+        is_alive=True,
+        jump_str=1,
         g=2000,
-        canFall=True,
-        canWallJump=False,
-        dyingSprite=None,
+        can_fall=True,
+        can_wall_jump=False,
+        dying_sprite=None,
         ):
 
         pygame.sprite.Sprite.__init__(self)
@@ -68,26 +68,26 @@ class Mob(pygame.sprite.Sprite):
         self.width=width
         self.length=length
         self.color=color
-        self.baseSpd=spd
-        self.jumpStr=jumpStr
+        self.base_spd=spd
+        self.jump_str=jump_str
         self.shape=shape
-        self.dyingSprite=dyingSprite
+        self.dying_sprite=dying_sprite
 
-        self.deathDuration=1
-        self.deathTimer=self.deathDuration
-        self.isDying=False
-        self.isAlive=True
-        self.isJumping=False
-        self.isFalling=False
-        self.isSprinting=False
-        self.verticalVelocity=0
+        self.death_duration=1
+        self.death_timer=self.death_duration
+        self.is_dying=False
+        self.is_alive=True
+        self.is_jumping=False
+        self.is_falling=False
+        self.is_sprinting=False
+        self.vertical_velocity=0
         self.g=g
-        self.isGrounded=False
-        self.canFall=canFall
-        self.canWallJump=canWallJump
+        self.is_grounded=False
+        self.can_fall=can_fall
+        self.can_wall_jump=can_wall_jump
         self.facing="default"
            
-    def initialDraw(self):
+    def initial_draw(self):
         if(self.shape==1):
             self.image=pygame.Surface((2*self.radius,2*self.radius),pygame.SRCALPHA)
             self.image.fill((0,0,0,0))
@@ -102,8 +102,8 @@ class Mob(pygame.sprite.Sprite):
     def __str__(self):
         return self.name
         
-    def useAttack(self,other):
-        if((self.type>0 and self.isAlive==True) and other.isAlive):
+    def use_attack(self,other):
+        if((self.type>0 and self.is_alive==True) and other.is_alive):
             other.hp=other.hp-self.dmg
             if(other.hp<=0):              
                 other.kill()
@@ -113,147 +113,147 @@ class Mob(pygame.sprite.Sprite):
 
     def walk(self,direction,dt):
         
-        blockedDirections=self.checkCollision(spritegroups.solidObjects)[0]
+        blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
                
         if(direction=="up"):
-            if (blockedDirections.count("up")==0):
+            if (blocked_directions.count("up")==0):
                 self.pos_y -= self.spd * dt
                     
         if(direction=="down"):
-            if(blockedDirections.count("down")==0):
+            if(blocked_directions.count("down")==0):
                 self.pos_y += self.spd * dt
                        
         if(direction=="left"):
             self.facing="left"
-            if(blockedDirections.count("left")==0):
+            if(blocked_directions.count("left")==0):
                 self.pos_x -= self.spd * dt
         
         if(direction=="right"):
             self.facing="right"
-            if(blockedDirections.count("right")==0):
+            if(blocked_directions.count("right")==0):
                 self.pos_x += self.spd * dt
 
         self.rect.center=(self.pos_x,self.pos_y)
-        blockedDirections.clear()
+        blocked_directions.clear()
 
     def jump(self):
         #print("jump")
-        blockedDirections=self.checkCollision(spritegroups.solidObjects)[0]
-        lastHorizontalCollider=self.checkCollision(spritegroups.solidObjects)[2]
-        if("down" in blockedDirections):  
-            self.verticalVelocity= -self.jumpStr
-            self.isJumping=True
-            self.isFalling=False
+        blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
+        last_horizontal_collider=self.check_collision(spritegroups.solidObjects)[2]
+        if("down" in blocked_directions):  
+            self.vertical_velocity= -self.jump_str
+            self.is_jumping=True
+            self.is_falling=False
             
-        if(self.canWallJump==True):
-            #print("Wall jump checked. Blocked directions:", blockedDirections)
-            if(getattr(lastHorizontalCollider,"isWallJumpable",False)):
-                if("left" in blockedDirections or "right" in blockedDirections):
-                    self.verticalVelocity= -self.jumpStr
-                    self.isJumping=True
-                    self.isFalling=False
+        if(self.can_wall_jump==True):
+            #print("Wall jump checked. Blocked directions:", blocked_directions)
+            if(getattr(last_horizontal_collider,"is_wall_jumpable",False)):
+                if("left" in blocked_directions or "right" in blocked_directions):
+                    self.vertical_velocity= -self.jump_str
+                    self.is_jumping=True
+                    self.is_falling=False
             
     def sprint(self,toggle=True):
-        if(self.isGrounded):
+        if(self.is_grounded):
             if(toggle==True):
-                if(self.isSprinting==False):
+                if(self.is_sprinting==False):
                     self.spd=2*self.spd
-                    self.isSprinting=True
+                    self.is_sprinting=True
             else:
-                self.spd=self.baseSpd
-                self.isSprinting=False
+                self.spd=self.base_spd
+                self.is_sprinting=False
             
-    def checkCollision(self,spriteGroup):
-        listOfCollidingSolidObjects=pygame.sprite.spritecollide(self,spriteGroup,False)
-        blockedDirections=[]
-        lastVerticalCollider=None
-        lastHorizontalCollider=None
+    def check_collision(self,spriteGroup):
+        list_of_colliding_solid_objects=pygame.sprite.spritecollide(self,spriteGroup,False)
+        blocked_directions=[]
+        last_vertical_collider=None
+        last_horizontal_collider=None
         
-        for object in listOfCollidingSolidObjects:
-            collisionsHorizontalDirection , collisionsVerticalDirection, lastVerticalCollider, lastHorizontalCollider = functions.rectCollisionDirection(self,object)
-            blockedDirections.append(collisionsHorizontalDirection)
-            blockedDirections.append(collisionsVerticalDirection)
+        for object in list_of_colliding_solid_objects:
+            collisions_horizontal_direction , collisions_vertical_direction, last_vertical_collider, last_horizontal_collider = functions.rectCollisionDirection(self,object)
+            blocked_directions.append(collisions_horizontal_direction)
+            blocked_directions.append(collisions_vertical_direction)
             
-        if("down"in blockedDirections):
-            self.isGrounded=True
+        if("down"in blocked_directions):
+            self.is_grounded=True
             
-        return blockedDirections, lastVerticalCollider, lastHorizontalCollider
+        return blocked_directions, last_vertical_collider, last_horizontal_collider
 
     def update(self,dt):
-        if(self.isDying==True):
+        if(self.is_dying==True):
             #print(f"[{self.name}] Updating while dying... image id is: {id(self.image)}")
-            if(self.deathTimer>0):
-                self.deathTimer-=dt
+            if(self.death_timer>0):
+                self.death_timer-=dt
             else:
-                self.deathTimer=0
+                self.death_timer=0
                 self.kill()
                 
-        if(self.isJumping==True):
-            self.verticalVelocity+=dt*self.g
-            self.pos_y+=self.verticalVelocity*dt
+        if(self.is_jumping==True):
+            self.vertical_velocity+=dt*self.g
+            self.pos_y+=self.vertical_velocity*dt
             self.rect.center=(self.pos_x,self.pos_y)
-            blockedDirections=self.checkCollision(spritegroups.solidObjects)[0]
-            if(self.verticalVelocity<0 and "up" in blockedDirections):
-                self.pos_y-=self.verticalVelocity*dt
+            blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
+            if(self.vertical_velocity<0 and "up" in blocked_directions):
+                self.pos_y-=self.vertical_velocity*dt
                 self.rect.center=(self.pos_x,self.pos_y)
-                self.verticalVelocity=0
-                self.isJumping=False
-                self.isFalling=True
-            if(self.verticalVelocity>0):
-                self.isJumping=False
-                self.isFalling=True
+                self.vertical_velocity=0
+                self.is_jumping=False
+                self.is_falling=True
+            if(self.vertical_velocity>0):
+                self.is_jumping=False
+                self.is_falling=True
                 
-        blockedDirections=self.checkCollision(spritegroups.solidObjects)[0]
-        if("down" not in blockedDirections and self.canFall==True):
-            if(self.isJumping==False): 
-                self.isFalling=True
-            self.isGrounded=False
+        blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
+        if("down" not in blocked_directions and self.can_fall==True):
+            if(self.is_jumping==False): 
+                self.is_falling=True
+            self.is_grounded=False
             
-        if(self.isFalling==True):
-            self.verticalVelocity+=dt*self.g
-            blockedDirections=self.checkCollision(spritegroups.solidObjects)[0]
-            #print(blockedDirections)
-            if(self.verticalVelocity>0 and "down" in blockedDirections):
-                if(self==self.checkCollision(spritegroups.solidObjects)[1]):
-                    self.rect.bottom=self.checkCollision(spritegroups.solidObjects)[1].rect.bottom
+        if(self.is_falling==True):
+            self.vertical_velocity+=dt*self.g
+            blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
+            #print(blocked_directions)
+            if(self.vertical_velocity>0 and "down" in blocked_directions):
+                if(self==self.check_collision(spritegroups.solidObjects)[1]):
+                    self.rect.bottom=self.check_collision(spritegroups.solidObjects)[1].rect.bottom
                 else:
-                    self.rect.bottom=self.checkCollision(spritegroups.solidObjects)[1].rect.top+1
+                    self.rect.bottom=self.check_collision(spritegroups.solidObjects)[1].rect.top+1
                     self.pos_y=self.rect.centery
-                    self.verticalVelocity=0
-                    self.isFalling=False
-                self.isGrounded=True
+                    self.vertical_velocity=0
+                    self.is_falling=False
+                self.is_grounded=True
             else:
-                self.pos_y+=self.verticalVelocity*dt
+                self.pos_y+=self.vertical_velocity*dt
                 self.rect.center=(self.pos_x,self.pos_y)
             
     def kill(self):
         #print(f"[{self.name}] KILL CALLED! Old image id: {id(self.image)}")
-        if(self.isDying==False):
-            self.isDying=True
-            self.isAlive=False
+        if(self.is_dying==False):
+            self.is_dying=True
+            self.is_alive=False
         self.hp=0
         self.image.fill((0,0,0,0))
         if(self.shape==1):
             pygame.draw.circle(self.image,(255,0,0,100),(self.radius,self.radius),self.radius)
         elif(self.shape==2):
-            if(self.dyingSprite==None):
-                self.dyingSprite=pygame.Surface(self.rect.size,pygame.SRCALPHA)
-                self.dyingSprite.fill((255,0,0,100))
-            self.image=self.dyingSprite
+            if(self.dying_sprite==None):
+                self.dying_sprite=pygame.Surface(self.rect.size,pygame.SRCALPHA)
+                self.dying_sprite.fill((255,0,0,100))
+            self.image=self.dying_sprite
         #print(f"[{self.name}] New red image id: {id(self.image)}")
         
-        if(self.deathTimer==0):
+        if(self.death_timer==0):
             pygame.sprite.Sprite.kill(self)
-            self.isDying=False
+            self.is_dying=False
 
 class Wall(pygame.sprite.Sprite):
-    def __init__(self,pos_x,pos_y,width,height,color="yellow",isWallJumpable=False,texture=None):
+    def __init__(self,pos_x,pos_y,width,height,color="yellow",is_wall_jumpable=False,texture=None):
         pygame.sprite.Sprite.__init__(self)
         
         self.pos_x=pos_x
         self.pos_y=pos_y
         
-        self.isWallJumpable=isWallJumpable
+        self.is_wall_jumpable=is_wall_jumpable
         
         self.image=pygame.Surface((width,height),pygame.SRCALPHA)
         self.image.fill(color)
@@ -262,7 +262,7 @@ class Wall(pygame.sprite.Sprite):
         self.rect.topleft=(self.pos_x,self.pos_y)
  
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self,name, dmg, cooldown, owner, range=25, type=1, attackDuration=0.3, texture=None):
+    def __init__(self,name, dmg, cooldown, owner, range=25, type=1, attack_duration=0.3, texture=None):
         pygame.sprite.Sprite.__init__(self)  
         
         self.name=name
@@ -271,13 +271,13 @@ class Weapon(pygame.sprite.Sprite):
         self.cooldown=cooldown
         self.owner=owner
         self.type=type     
-        self.attackDuration=attackDuration
+        self.attack_duration=attack_duration
         self.texture=texture
         
-        self.isReady=True
-        self.isAttacking=False
-        self.cooldownTimer=self.cooldown
-        self.attackTimer=self.attackDuration
+        self.is_ready=True
+        self.is_attacking=False
+        self.cooldown_timer=self.cooldown
+        self.attack_timer=self.attack_duration
         
         if(self.texture==None):
             self.image=pygame.Surface((range,10),pygame.SRCALPHA)
@@ -292,14 +292,14 @@ class Weapon(pygame.sprite.Sprite):
         return self.name
         
     def update(self,dt):
-        if(self.isReady==False):
-            self.cooldownTimer-=dt
-            if(self.cooldownTimer<=0):
-                self.isReady=True
-                self.cooldownTimer=self.cooldown
+        if(self.is_ready==False):
+            self.cooldown_timer-=dt
+            if(self.cooldown_timer<=0):
+                self.is_ready=True
+                self.cooldown_timer=self.cooldown
                 
-        if(self.isAttacking==True):
-            self.attackTimer-=dt
+        if(self.is_attacking==True):
+            self.attack_timer-=dt
             if(self.owner.facing=="right"):
                 self.image=self.texture
                 self.rect.topleft=(self.owner.rect.right-5,self.owner.pos_y+5)
@@ -307,23 +307,23 @@ class Weapon(pygame.sprite.Sprite):
                 self.image=pygame.transform.flip(self.texture,True,False)
                 self.rect.topright=(self.owner.rect.left+5,self.owner.pos_y+5)
             self.image.set_alpha(255)
-            if(self.attackTimer<=0):
+            if(self.attack_timer<=0):
                 self.image.set_alpha(0)
-                self.isAttacking=False
-                self.attackTimer=self.attackDuration
+                self.is_attacking=False
+                self.attack_timer=self.attack_duration
             
             
-    def useAttack(self,owner,other):
-            if(self.isReady==True):
-                horizontalDistance, verticalDistance, relativeDirection=functions.spriteDistance(owner,other)
-                self.isReady=False
-                self.isAttacking=True
-                self.cooldownTimer=self.cooldown
+    def use_attack(self,owner,other):
+            if(self.is_ready==True):
+                horizontal_distance, vertical_distance, relative_direction=functions.spriteDistance(owner,other)
+                self.is_ready=False
+                self.is_attacking=True
+                self.cooldown_timer=self.cooldown
                 #print("usedattack")
-                #print(relativeDirection)
-                if(relativeDirection==owner.facing):
-                    if(horizontalDistance<=self.range and verticalDistance<=0):
-                        if(other.isAlive==True):
+                #print(relative_direction)
+                if(relative_direction==owner.facing):
+                    if(horizontal_distance<=self.range and vertical_distance<=0):
+                        if(other.is_alive==True):
                             other.hp=other.hp-self.dmg
                             #print("damaged")
                             if(other.hp<=0):
@@ -333,12 +333,12 @@ class Weapon(pygame.sprite.Sprite):
                                 print(f"{owner} attacked {other} using {self}, dealing a damage of {self.dmg}. {other}'s new hp is {other.hp}")
             
 class SpriteSheet(pygame.sprite.Sprite):
-    def __init__(self,filePath):
-        self.filePath=filePath
-        self.spriteSheet=pygame.image.load(filePath).convert_alpha()
+    def __init__(self,file_path):
+        self.file_path=file_path
+        self.sprite_sheet=pygame.image.load(file_path).convert_alpha()
     def getSprite(self,pos_x,pos_y,width,height):
         rawSprite=pygame.Surface((width,height),pygame.SRCALPHA)
-        rawSprite.blit(self.spriteSheet,(0,0),(pos_x,pos_y,width,height))
+        rawSprite.blit(self.sprite_sheet,(0,0),(pos_x,pos_y,width,height))
         sprite=pygame.transform.scale(rawSprite,(width*SCALE_FACTOR,height*SCALE_FACTOR))
         return sprite
         
