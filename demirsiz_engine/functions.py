@@ -3,7 +3,7 @@ import pygame
 from . import spritegroups
 from . import classes
 
-def circleCollision(circle1:pygame.sprite.Sprite,circle2:pygame.sprite.Sprite):
+def circle_collision(circle1:pygame.sprite.Sprite,circle2:pygame.sprite.Sprite):
     dx=(circle1.pos_x-circle2.pos_x)
     dy=(circle1.pos_y-circle2.pos_y)
     distance=math.sqrt((dx*dx)+(dy*dy))
@@ -15,67 +15,67 @@ def circleCollision(circle1:pygame.sprite.Sprite,circle2:pygame.sprite.Sprite):
     else:
         return(False)
 
-def rectCollisionDirection(self,other:pygame.sprite.Sprite):
-    collisionsVerticalDirection="default"
-    collisionsHorizontalDirection="default"
+def rect_collision_direction(self,other:pygame.sprite.Sprite):
+    collisions_vertical_direction="default"
+    collisions_horizontal_direction="default"
     
-    lastVerticalObject=self
-    lastHorizontalObject=self
+    last_vertical_object=self
+    last_horizontal_object=self
     
-    leftOverlap = self.rect.right - other.rect.left
-    rightOverlap= other.rect.right - self.rect.left
-    topOverlap= self.rect.bottom - other.rect.top
-    bottomOverlap=other.rect.bottom - self.rect.top
+    left_overlap = self.rect.right - other.rect.left
+    right_overlap= other.rect.right - self.rect.left
+    top_overlap= self.rect.bottom - other.rect.top
+    bottom_overlap=other.rect.bottom - self.rect.top
             
-    minOverlapX=min(leftOverlap,rightOverlap)
-    minOverlapY=min(topOverlap,bottomOverlap)
+    min_overlap_x=min(left_overlap,right_overlap)
+    min_overlap_y=min(top_overlap,bottom_overlap)
             
-    if minOverlapY<minOverlapX:
+    if min_overlap_y<min_overlap_x:
         #vertical collision
-        lastVerticalObject=other
+        last_vertical_object=other
         if(self.pos_y>other.pos_y):
-            collisionsVerticalDirection="up"
+            collisions_vertical_direction="up"
         elif(self.pos_y<other.pos_y):
-            collisionsVerticalDirection="down"
+            collisions_vertical_direction="down"
             
-    elif(minOverlapX<minOverlapY):
+    elif(min_overlap_x<min_overlap_y):
         #horizontal collision
-        lastHorizontalObject=other
+        last_horizontal_object=other
         if(self.pos_x>other.pos_x):
-            collisionsHorizontalDirection="left"
+            collisions_horizontal_direction="left"
         elif(self.pos_x<other.pos_x):
-            collisionsHorizontalDirection="right"
+            collisions_horizontal_direction="right"
                    
-    return collisionsHorizontalDirection, collisionsVerticalDirection, lastVerticalObject, lastHorizontalObject
+    return collisions_horizontal_direction, collisions_vertical_direction, last_vertical_object, last_horizontal_object
 
-def spriteDistance(self:pygame.sprite.Sprite,other:pygame.sprite.Sprite):
-    verticalDistance=0
-    horizontalDistance=0
-    relativeDirection="default"
-    collidingObjects=pygame.sprite.spritecollide(self,spritegroups.allSprites,False)
-    if(self.isAlive==True):
-        if(not (other in collidingObjects)):
+def sprite_distance(self:pygame.sprite.Sprite,other:pygame.sprite.Sprite):
+    vertical_distance=0
+    horizontal_distance=0
+    relative_direction="default"
+    colliding_objects=pygame.sprite.spritecollide(self,spritegroups.all_sprites,False)
+    if(self.is_alive==True):
+        if(not (other in colliding_objects)):
             if(self.pos_x>other.pos_x):#other is on the left
                 if(other.rect.right<self.rect.left):
-                    relativeDirection="left"
-                    horizontalDistance=self.rect.left-other.rect.right
+                    relative_direction="left"
+                    horizontal_distance=self.rect.left-other.rect.right
             elif(self.pos_x<other.pos_x): #other is on the right
                 if(other.rect.left>self.rect.right):    
-                    relativeDirection="right"
-                    horizontalDistance=other.rect.left-self.rect.right
+                    relative_direction="right"
+                    horizontal_distance=other.rect.left-self.rect.right
             if(self.pos_y>other.pos_y): #other is on the top
                 if(other.rect.bottom<self.rect.top):
-                    verticalDistance=self.rect.top-other.rect.bottom
+                    vertical_distance=self.rect.top-other.rect.bottom
             elif(self.pos_y<other.pos_y): #other is on the bottom
                 if(other.rect.top>self.rect.bottom):
-                    verticalDistance=other.rect.top-self.rect.top
-    return horizontalDistance, verticalDistance, relativeDirection
+                    vertical_distance=other.rect.top-self.rect.top
+    return horizontal_distance, vertical_distance, relative_direction
 
-def repeatTexture(texture:pygame.Surface,horizontalCount,verticalCount):
-    textureHeight=texture.height
-    textureWidth=texture.width
-    subSurface=pygame.Surface((textureWidth*horizontalCount,textureHeight*horizontalCount),pygame.SRCALPHA)
-    for i in range(verticalCount):
-        for j in range(horizontalCount):
-            subSurface.blit(texture,(j*textureWidth,i))
-    return subSurface
+def repeat_texture(texture:pygame.Surface,horizontal_count,vertical_count):
+    texture_height=texture.height
+    texture_width=texture.width
+    sub_surface=pygame.Surface((texture_width*horizontal_count,texture_height*horizontal_count),pygame.SRCALPHA)
+    for i in range(vertical_count):
+        for j in range(horizontal_count):
+            sub_surface.blit(texture,(j*texture_width,i))
+    return sub_surface
