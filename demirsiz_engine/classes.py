@@ -163,8 +163,8 @@ class Mob(pygame.sprite.Sprite):
                 self.spd=self.base_spd
                 self.is_sprinting=False
             
-    def check_collision(self,spriteGroup):
-        list_of_colliding_solid_objects=pygame.sprite.spritecollide(self,spriteGroup,False)
+    def check_collision(self,sprite_group):
+        list_of_colliding_solid_objects=pygame.sprite.spritecollide(self,sprite_group,False)
         blocked_directions=[]
         last_vertical_collider=None
         last_horizontal_collider=None
@@ -336,9 +336,9 @@ class SpriteSheet(pygame.sprite.Sprite):
     def __init__(self,file_path):
         self.file_path=file_path
         self.sprite_sheet=pygame.image.load(file_path).convert_alpha()
-    def getSprite(self,pos_x,pos_y,width,height):
-        rawSprite=pygame.Surface((width,height),pygame.SRCALPHA)
-        rawSprite.blit(self.sprite_sheet,(0,0),(pos_x,pos_y,width,height))
-        sprite=pygame.transform.scale(rawSprite,(width*SCALE_FACTOR,height*SCALE_FACTOR))
+    def get_sprite(self,pos_x,pos_y,width,height):
+        raw_sprite=pygame.Surface((width,height),pygame.SRCALPHA)
+        raw_sprite.blit(self.sprite_sheet,(0,0),(pos_x,pos_y,width,height))
+        sprite=pygame.transform.scale(raw_sprite,(width*SCALE_FACTOR,height*SCALE_FACTOR))
         return sprite
         
