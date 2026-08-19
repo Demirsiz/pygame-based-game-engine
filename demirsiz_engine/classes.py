@@ -5,21 +5,18 @@ from . import functions
 SCALE_FACTOR=3
 
 class Border(pygame.sprite.Sprite):
-    def __init__(self,pos_x,pos_y,width,height,color,is_wall_jumpable=True):
+    def __init__(self,pos_x,pos_y,width,height,color="black",is_wall_jumpable=True):
         pygame.sprite.Sprite.__init__(self)
 
         self.pos_x=pos_x
-        self.pos_y=pos_y
-        
+        self.pos_y=pos_y     
         self.height=height
         self.width=width
         self.color=color
-        
         self.is_wall_jumpable=is_wall_jumpable
         
-        self.image=pygame.Surface((width,height))
+        self.image=pygame.Surface((self.width,self.height))
         self.image.fill(color)
-
         self.rect=self.image.get_rect()
         self.rect.topleft=(self.pos_x,self.pos_y)
 
@@ -262,7 +259,7 @@ class Wall(pygame.sprite.Sprite):
         self.rect.topleft=(self.pos_x,self.pos_y)
  
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self,name, dmg, cooldown, owner, range=25, type=1, attack_duration=0.3, texture=None):
+    def __init__(self,name, dmg, cooldown, owner, range=25, type=1, attack_duration=0.3):
         pygame.sprite.Sprite.__init__(self)  
         
         self.name=name
@@ -272,21 +269,22 @@ class Weapon(pygame.sprite.Sprite):
         self.owner=owner
         self.type=type     
         self.attack_duration=attack_duration
-        self.texture=texture
         
         self.is_ready=True
         self.is_attacking=False
         self.cooldown_timer=self.cooldown
         self.attack_timer=self.attack_duration
         
+
         if(self.texture==None):
             self.image=pygame.Surface((range,10),pygame.SRCALPHA)
-            self.image.fill((0,0,100,0))
+            self.image.fill((0,0,100))
             self.texture=self.image
         else:
             self.image=self.texture
         self.rect=self.image.get_rect()
         self.range=self.rect.width-5
+        self.image.set_alpha(0)
         
     def __str__(self):
         return self.name
@@ -300,13 +298,13 @@ class Weapon(pygame.sprite.Sprite):
                 
         if(self.is_attacking==True):
             self.attack_timer-=dt
+            self.image.set_alpha(255)
             if(self.owner.facing=="right"):
                 self.image=self.texture
                 self.rect.topleft=(self.owner.rect.right-5,self.owner.pos_y+5)
             elif(self.owner.facing=="left"): 
                 self.image=pygame.transform.flip(self.texture,True,False)
                 self.rect.topright=(self.owner.rect.left+5,self.owner.pos_y+5)
-            self.image.set_alpha(255)
             if(self.attack_timer<=0):
                 self.image.set_alpha(0)
                 self.is_attacking=False
