@@ -72,10 +72,8 @@ def sprite_distance(self:pygame.sprite.Sprite,other:pygame.sprite.Sprite):
     return horizontal_distance, vertical_distance, relative_direction
 
 def repeat_texture(texture:pygame.Surface,horizontal_count,vertical_count):
-    texture_height=texture.height
-    texture_width=texture.width
-    sub_surface=pygame.Surface((texture_width*horizontal_count,texture_height*horizontal_count),pygame.SRCALPHA)
+    sub_surface=pygame.Surface((texture.get_width()*horizontal_count,texture.get_height()*horizontal_count),pygame.SRCALPHA)
     for i in range(vertical_count):
         for j in range(horizontal_count):
-            sub_surface.blit(texture,(j*texture_width,i))
+            sub_surface.blit(texture,(j*texture.width,i*texture.height))
     return sub_surface

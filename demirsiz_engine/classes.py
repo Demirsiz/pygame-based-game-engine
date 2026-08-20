@@ -83,6 +83,7 @@ class Mob(pygame.sprite.Sprite):
         self.can_fall=can_fall
         self.can_wall_jump=can_wall_jump
         self.facing="default"
+        self.texture=self.image
            
     def initial_draw(self):
         if(self.shape==1):
@@ -90,9 +91,12 @@ class Mob(pygame.sprite.Sprite):
             self.image.fill((0,0,0,0))
             pygame.draw.circle(self.image,self.color,(self.radius,self.radius),self.radius)
         elif(self.shape==2):
-            if(self.image==None):
+            if(self.texture==None):
                 self.image=pygame.Surface((self.width,self.length),pygame.SRCALPHA)
                 self.image.fill((0,0,255,100))
+                self.texture=self.image
+            else:
+                self.image=self.texture
         self.rect=self.image.get_rect()
         self.rect.center=(self.pos_x,self.pos_y)
     
@@ -110,7 +114,7 @@ class Mob(pygame.sprite.Sprite):
 
     def walk(self,direction,dt):
         
-        blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
+        blocked_directions=self.check_collision(spritegroups.solid_objects)[0]
                
         if(direction=="up"):
             if (blocked_directions.count("up")==0):
@@ -167,7 +171,7 @@ class Mob(pygame.sprite.Sprite):
         last_horizontal_collider=None
         
         for object in list_of_colliding_solid_objects:
-            collisions_horizontal_direction , collisions_vertical_direction, last_vertical_collider, last_horizontal_collider = functions.rectCollisionDirection(self,object)
+            collisions_horizontal_direction , collisions_vertical_direction, last_vertical_collider, last_horizontal_collider = functions.rect_collision_direction(self,object)
             blocked_directions.append(collisions_horizontal_direction)
             blocked_directions.append(collisions_vertical_direction)
             
@@ -249,12 +253,20 @@ class Wall(pygame.sprite.Sprite):
         
         self.pos_x=pos_x
         self.pos_y=pos_y
-        
+        self.texture=texture
         self.is_wall_jumpable=is_wall_jumpable
         
-        self.image=pygame.Surface((width,height),pygame.SRCALPHA)
-        self.image.fill(color)
+        if(self.texture==None):
+            self.image=pygame.Surface((width,height),pygame.SRCALPHA)
+            self.image.fill(color)
+            self.texture=self.image
+        else:
+            self.image=self.texture
         
+        self.rect=self.image.get_rect()
+        self.rect.topleft=(self.pos_x,self.pos_y)
+        
+    def update_rect(self):
         self.rect=self.image.get_rect()
         self.rect.topleft=(self.pos_x,self.pos_y)
  
@@ -336,7 +348,8 @@ class SpriteSheet(pygame.sprite.Sprite):
         self.sprite_sheet=pygame.image.load(file_path).convert_alpha()
     def get_sprite(self,pos_x,pos_y,width,height):
         raw_sprite=pygame.Surface((width,height),pygame.SRCALPHA)
-        raw_sprite.blit(self.sprite_sheet,(0,0),(pos_x,pos_y,width,height))
+        print(raw_sprite.get_rect())
+        raw_sprite.blit(self.sprite_sheet,area=(pos_x,pos_y,width,height))
         sprite=pygame.transform.scale(raw_sprite,(width*SCALE_FACTOR,height*SCALE_FACTOR))
         return sprite
         
