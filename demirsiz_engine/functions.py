@@ -118,7 +118,7 @@ def repeat_texture(canvas:pygame.Rect,texture:pygame.Surface,dest:pygame.Rect=(0
 def calculate_borders(screen,border_thickness,border_texture=None):
     top_border=classes.Wall(0,0,screen.get_width(),border_thickness,is_wall_jumpable=True,texture=border_texture)
     bottom_border=classes.Wall(0,screen.get_height()-border_thickness,screen.get_width(),border_thickness,is_wall_jumpable=True,texture=border_texture)
-    left_border=classes.Wall(0,0,border_thickness,screen.get_height(),is_wall_jumpable=True,texture=border_texture)
-    right_border=classes.Wall(screen.get_width()-border_thickness,0,border_thickness,screen.get_height(),is_wall_jumpable=True,texture=border_texture)
+    left_border=classes.Wall(0,0,border_thickness,screen.get_height(),is_wall_jumpable=True,texture=pygame.transform.rotate(border_texture,90))
+    right_border=classes.Wall(screen.get_width()-border_thickness,0,border_thickness,screen.get_height(),is_wall_jumpable=True,texture=pygame.transform.rotate(border_texture,90))
 
     return (top_border,bottom_border,left_border,right_border)
