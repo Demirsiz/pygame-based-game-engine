@@ -19,9 +19,6 @@ def rect_collision_direction(self,other:pygame.sprite.Sprite):
     collisions_vertical_direction="default"
     collisions_horizontal_direction="default"
     
-    last_vertical_object=self
-    last_horizontal_object=self
-    
     left_overlap = self.rect.right - other.rect.left
     right_overlap= other.rect.right - self.rect.left
     top_overlap= self.rect.bottom - other.rect.top
@@ -32,7 +29,7 @@ def rect_collision_direction(self,other:pygame.sprite.Sprite):
             
     if min_overlap_y<min_overlap_x:
         #vertical collision
-        last_vertical_object=other
+        self.last_vertical_collider=other
         if(self.pos_y>other.pos_y):
             collisions_vertical_direction="up"
         elif(self.pos_y<other.pos_y):
@@ -40,13 +37,13 @@ def rect_collision_direction(self,other:pygame.sprite.Sprite):
             
     elif(min_overlap_x<min_overlap_y):
         #horizontal collision
-        last_horizontal_object=other
+        self.last_horizontal_collider=other
         if(self.pos_x>other.pos_x):
             collisions_horizontal_direction="left"
         elif(self.pos_x<other.pos_x):
             collisions_horizontal_direction="right"
                    
-    return collisions_horizontal_direction, collisions_vertical_direction, last_vertical_object, last_horizontal_object
+    return collisions_horizontal_direction, collisions_vertical_direction
 
 def sprite_distance(self:pygame.sprite.Sprite,other:pygame.sprite.Sprite):
     vertical_distance=0

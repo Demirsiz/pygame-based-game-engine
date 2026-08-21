@@ -84,6 +84,9 @@ class Mob(pygame.sprite.Sprite):
         self.can_wall_jump=can_wall_jump
         self.facing="default"
         self.texture=self.image
+        self.stop=False
+        self.last_vertical_collider=None
+        self.last_horizontal_collider=None
            
     def initial_draw(self):
         if(self.shape==1):
@@ -114,28 +117,43 @@ class Mob(pygame.sprite.Sprite):
 
     def walk(self,direction,dt):
         
-        blocked_directions=self.check_collision(spritegroups.solid_objects)[0]
-               
+        self.blocked_directions=self.check_collision(spritegroups.solid_objects)
+        
         if(direction=="up"):
-            if (blocked_directions.count("up")==0):
+            if("up" not in self.blocked_directions):
                 self.pos_y -= self.spd * dt
+                self.rect.center=(self.pos_x,self.pos_y)
+            else:
+                self.rect.top=self.last_vertical_collider.rect.bottom-1
+                self.pos_y=self.rect.centery
                     
-        if(direction=="down"):
-            if(blocked_directions.count("down")==0):
+        if(direction=="down"): 
+            if("down" not in self.blocked_directions):
                 self.pos_y += self.spd * dt
+                self.rect.center=(self.pos_x,self.pos_y)
+            else:
+                self.rect.bottom=self.last_vertical_collider.rect.top+1
+                self.pos_y=self.rect.centery
                        
         if(direction=="left"):
             self.facing="left"
-            if(blocked_directions.count("left")==0):
+            if("left" not in self.blocked_directions):
                 self.pos_x -= self.spd * dt
+                self.rect.center=(self.pos_x,self.pos_y)
+            else:
+                self.rect.left=self.last_horizontal_collider.rect.right-1
+                self.pos_x=self.rect.centerx
         
         if(direction=="right"):
             self.facing="right"
-            if(blocked_directions.count("right")==0):
+            if("right" not in self.blocked_directions):
                 self.pos_x += self.spd * dt
-
-        self.rect.center=(self.pos_x,self.pos_y)
-        blocked_directions.clear()
+                self.rect.center=(self.pos_x,self.pos_y)
+            else:
+                self.rect.right=self.last_horizontal_collider.rect.left+1
+                self.pos_x=self.rect.centerx
+        print(self.blocked_directions)
+        self.blocked_directions.clear()
 
     def jump(self):
         #print("jump")
@@ -167,18 +185,16 @@ class Mob(pygame.sprite.Sprite):
     def check_collision(self,sprite_group):
         list_of_colliding_solid_objects=pygame.sprite.spritecollide(self,sprite_group,False)
         blocked_directions=[]
-        last_vertical_collider=None
-        last_horizontal_collider=None
         
         for object in list_of_colliding_solid_objects:
-            collisions_horizontal_direction , collisions_vertical_direction, last_vertical_collider, last_horizontal_collider = functions.rect_collision_direction(self,object)
+            collisions_horizontal_direction , collisions_vertical_direction = functions.rect_collision_direction(self,object)
             blocked_directions.append(collisions_horizontal_direction)
             blocked_directions.append(collisions_vertical_direction)
             
         if("down"in blocked_directions):
             self.is_grounded=True
             
-        return blocked_directions, last_vertical_collider, last_horizontal_collider
+        return blocked_directions
 
     def update(self,dt):
         if(self.is_dying==True):
@@ -268,7 +284,6 @@ class Wall(pygame.sprite.Sprite):
         self.rect=self.image.get_rect()
         self.rect.topleft=(self.pos_x,self.pos_y)
         
- 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self,name, dmg, cooldown, owner, range=25, type=1, attack_duration=0.3):
         pygame.sprite.Sprite.__init__(self)  
@@ -351,3 +366,4 @@ class SpriteSheet(pygame.sprite.Sprite):
         raw_sprite.blit(self.sprite_sheet,area=(pos_x,pos_y,width,height))
         sprite=pygame.transform.scale(raw_sprite,(width*SCALE_FACTOR,height*SCALE_FACTOR))
         return sprite
+    
