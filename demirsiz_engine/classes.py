@@ -255,9 +255,11 @@ class Wall(pygame.sprite.Sprite):
         self.pos_y=pos_y
         self.texture=texture
         self.is_wall_jumpable=is_wall_jumpable
+        self.width=width
+        self.height=height
         
         if(self.texture==None):
-            self.image=pygame.Surface((width,height),pygame.SRCALPHA)
+            self.image=pygame.Surface((self.width,self.height),pygame.SRCALPHA)
             self.image.fill(color)
             self.texture=self.image
         else:
@@ -266,9 +268,6 @@ class Wall(pygame.sprite.Sprite):
         self.rect=self.image.get_rect()
         self.rect.topleft=(self.pos_x,self.pos_y)
         
-    def update_rect(self):
-        self.rect=self.image.get_rect()
-        self.rect.topleft=(self.pos_x,self.pos_y)
  
 class Weapon(pygame.sprite.Sprite):
     def __init__(self,name, dmg, cooldown, owner, range=25, type=1, attack_duration=0.3):
@@ -352,4 +351,3 @@ class SpriteSheet(pygame.sprite.Sprite):
         raw_sprite.blit(self.sprite_sheet,area=(pos_x,pos_y,width,height))
         sprite=pygame.transform.scale(raw_sprite,(width*SCALE_FACTOR,height*SCALE_FACTOR))
         return sprite
-        
