@@ -118,7 +118,7 @@ class Mob(pygame.sprite.Sprite):
     def walk(self,direction,dt):
         
         self.blocked_directions=self.check_collision(spritegroups.solid_objects)
-        
+        # clipping into walls issue resolved by making the mob clip into wall by exactly 1 pixel
         if(direction=="up"):
             if("up" not in self.blocked_directions):
                 self.pos_y -= self.spd * dt
@@ -152,7 +152,8 @@ class Mob(pygame.sprite.Sprite):
             else:
                 self.rect.right=self.last_horizontal_collider.rect.left+1
                 self.pos_x=self.rect.centerx
-        print(self.blocked_directions)
+                
+        #print(self.blocked_directions)
         self.blocked_directions.clear()
 
     def jump(self):
