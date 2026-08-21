@@ -4,31 +4,6 @@ from . import functions
 
 SCALE_FACTOR=3
 
-class Border(pygame.sprite.Sprite):
-    def __init__(self,pos_x,pos_y,width,height,color="black",is_wall_jumpable=True):
-        pygame.sprite.Sprite.__init__(self)
-
-        self.pos_x=pos_x
-        self.pos_y=pos_y     
-        self.height=height
-        self.width=width
-        self.color=color
-        self.is_wall_jumpable=is_wall_jumpable
-        
-        self.image=pygame.Surface((self.width,self.height))
-        self.image.fill(color)
-        self.rect=self.image.get_rect()
-        self.rect.topleft=(self.pos_x,self.pos_y)
-
-    @staticmethod
-    def calculate_borders(screen,border_thickness):
-        top_border=Border(0,0,screen.get_width(),border_thickness,(0,0,0))
-        bottom_border=Border(0,screen.get_height()-border_thickness,screen.get_width(),border_thickness,(0,0,0))
-        left_border=Border(0,0,border_thickness,screen.get_height(),(0,0,0))
-        right_border=Border(screen.get_width()-border_thickness,0,border_thickness,screen.get_height(),(0,0,0))
-
-        return (top_border,bottom_border,left_border,right_border)
-
 class Mob(pygame.sprite.Sprite):
     def __init__(
         self,
@@ -265,7 +240,7 @@ class Mob(pygame.sprite.Sprite):
             self.is_dying=False
 
 class Wall(pygame.sprite.Sprite):
-    def __init__(self,pos_x,pos_y,width,height,color="yellow",is_wall_jumpable=False,texture=None):
+    def __init__(self,pos_x,pos_y,width,height,color="yellow",is_wall_jumpable=False,texture=None,texture_dest=(0,0,0,0)):
         pygame.sprite.Sprite.__init__(self)
         
         self.pos_x=pos_x
@@ -274,15 +249,18 @@ class Wall(pygame.sprite.Sprite):
         self.is_wall_jumpable=is_wall_jumpable
         self.width=width
         self.height=height
+        self.rect=pygame.Rect(pos_x,pos_y,width,height)
+        #going to leave both self.width/height and self.rect.width/height
+        #cause i dont remember what would it break
+        #just going to continue writing stuff with rect.width from now on
         
         if(self.texture==None):
             self.image=pygame.Surface((self.width,self.height),pygame.SRCALPHA)
             self.image.fill(color)
             self.texture=self.image
         else:
-            self.image=self.texture
+            self.image=functions.repeat_texture(self.rect,self.texture,texture_dest)
         
-        self.rect=self.image.get_rect()
         self.rect.topleft=(self.pos_x,self.pos_y)
         
 class Weapon(pygame.sprite.Sprite):

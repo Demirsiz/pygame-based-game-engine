@@ -68,7 +68,7 @@ def sprite_distance(self:pygame.sprite.Sprite,other:pygame.sprite.Sprite):
                     vertical_distance=other.rect.top-self.rect.top
     return horizontal_distance, vertical_distance, relative_direction
 
-def repeat_texture(canvas,texture:pygame.Surface,dest:pygame.Rect=(0,0,0,0)):
+def repeat_texture(canvas:pygame.Rect,texture:pygame.Surface,dest:pygame.Rect=(0,0,0,0)):
     #if a dest rect is defined it selects which part of object is gonna be texture painted (xofset,yofset,width,height)
     destination=pygame.Rect(dest)
     if(destination.width==0):
@@ -114,3 +114,11 @@ def repeat_texture(canvas,texture:pygame.Surface,dest:pygame.Rect=(0,0,0,0)):
     sub_surface.blit(corner_slice,(texture_width*horizontal_count+offset_x,texture_height*vertical_count+offset_y))
         
     return sub_surface
+
+def calculate_borders(screen,border_thickness,border_texture=None):
+    top_border=classes.Wall(0,0,screen.get_width(),border_thickness,is_wall_jumpable=True,texture=border_texture)
+    bottom_border=classes.Wall(0,screen.get_height()-border_thickness,screen.get_width(),border_thickness,is_wall_jumpable=True,texture=border_texture)
+    left_border=classes.Wall(0,0,border_thickness,screen.get_height(),is_wall_jumpable=True,texture=border_texture)
+    right_border=classes.Wall(screen.get_width()-border_thickness,0,border_thickness,screen.get_height(),is_wall_jumpable=True,texture=border_texture)
+
+    return (top_border,bottom_border,left_border,right_border)
