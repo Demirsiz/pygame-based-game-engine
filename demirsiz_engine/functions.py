@@ -68,9 +68,49 @@ def sprite_distance(self:pygame.sprite.Sprite,other:pygame.sprite.Sprite):
                     vertical_distance=other.rect.top-self.rect.top
     return horizontal_distance, vertical_distance, relative_direction
 
-def repeat_texture(texture:pygame.Surface,horizontal_count,vertical_count):
-    sub_surface=pygame.Surface((texture.get_width()*horizontal_count,texture.get_height()*horizontal_count),pygame.SRCALPHA)
+def repeat_texture(canvas,texture:pygame.Surface,dest:pygame.Rect=(0,0,0,0)):
+    #if a dest rect is defined it selects which part of object is gonna be texture painted (xofset,yofset,width,height)
+    destination=pygame.Rect(dest)
+    if(destination.width==0):
+        width=canvas.width
+    else:
+        width=destination.width
+    if(destination.height==0):
+        height=canvas.height
+    else:
+        height=destination.height
+    
+    texture_width=texture.get_width()
+    texture_height=texture.get_height()
+    print(texture_height)
+    print(texture_width)
+    offset_x=destination.left
+    offset_y=destination.top
+    
+    horizontal_count=width//texture_width
+    vertical_count=height//texture_height
+    #floor divisions to find how many whole texture parts are gonna be blitted
+    
+    width_remainder=width%texture_width
+    height_remainder=height%texture_height
+    print(width_remainder)
+    print(height_remainder)
+    
+    bottom_slice=pygame.Surface.subsurface(texture,(0,0,texture_width,height_remainder))
+    right_slice=pygame.Surface.subsurface(texture,(0,0,width_remainder,texture_height))
+    corner_slice=pygame.Surface.subsurface(texture,(0,0,width_remainder,height_remainder))
+    #partial parts of the textures to complete remaining parts
+    
+    sub_surface=pygame.Surface((width,height),pygame.SRCALPHA)
+    
     for i in range(vertical_count):
         for j in range(horizontal_count):
-            sub_surface.blit(texture,(j*texture.width,i*texture.height))
+            sub_surface.blit(texture,(j*texture_width+offset_x,i*texture_height+offset_y))
+        sub_surface.blit(right_slice,(horizontal_count*texture_width+offset_x,i*texture_height+offset_y))
+    
+    for k in range(horizontal_count):
+        sub_surface.blit(bottom_slice,(texture_width*k+offset_x,texture_height*vertical_count+offset_y))
+        
+    sub_surface.blit(corner_slice,(texture_width*horizontal_count+offset_x,texture_height*vertical_count+offset_y))
+        
     return sub_surface
