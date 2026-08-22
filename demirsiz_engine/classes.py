@@ -139,7 +139,7 @@ class Mob(pygame.sprite.Sprite):
             self.is_jumping=True
             self.is_falling=False
             
-        if(self.can_wall_jump==True):
+        if(self.can_wall_jump==True and self.vertical_velocity>500):
             #print("Wall jump checked. Blocked directions:", blocked_directions)
             if(getattr(self.last_horizontal_collider,"is_wall_jumpable",False)):
                 if("left" in blocked_directions or "right" in blocked_directions):
