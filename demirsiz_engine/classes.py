@@ -133,8 +133,7 @@ class Mob(pygame.sprite.Sprite):
 
     def jump(self):
         #print("jump")
-        blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
-        last_horizontal_collider=self.check_collision(spritegroups.solidObjects)[2]
+        blocked_directions=self.check_collision(spritegroups.solid_objects)
         if("down" in blocked_directions):  
             self.vertical_velocity= -self.jump_str
             self.is_jumping=True
@@ -142,7 +141,7 @@ class Mob(pygame.sprite.Sprite):
             
         if(self.can_wall_jump==True):
             #print("Wall jump checked. Blocked directions:", blocked_directions)
-            if(getattr(last_horizontal_collider,"is_wall_jumpable",False)):
+            if(getattr(self.last_horizontal_collider,"is_wall_jumpable",False)):
                 if("left" in blocked_directions or "right" in blocked_directions):
                     self.vertical_velocity= -self.jump_str
                     self.is_jumping=True
@@ -185,7 +184,7 @@ class Mob(pygame.sprite.Sprite):
             self.vertical_velocity+=dt*self.g
             self.pos_y+=self.vertical_velocity*dt
             self.rect.center=(self.pos_x,self.pos_y)
-            blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
+            blocked_directions=self.check_collision(spritegroups.solid_objects)
             if(self.vertical_velocity<0 and "up" in blocked_directions):
                 self.pos_y-=self.vertical_velocity*dt
                 self.rect.center=(self.pos_x,self.pos_y)
@@ -196,7 +195,7 @@ class Mob(pygame.sprite.Sprite):
                 self.is_jumping=False
                 self.is_falling=True
                 
-        blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
+        blocked_directions=self.check_collision(spritegroups.solid_objects)
         if("down" not in blocked_directions and self.can_fall==True):
             if(self.is_jumping==False): 
                 self.is_falling=True
@@ -204,13 +203,13 @@ class Mob(pygame.sprite.Sprite):
             
         if(self.is_falling==True):
             self.vertical_velocity+=dt*self.g
-            blocked_directions=self.check_collision(spritegroups.solidObjects)[0]
+            blocked_directions=self.check_collision(spritegroups.solid_objects)
             #print(blocked_directions)
             if(self.vertical_velocity>0 and "down" in blocked_directions):
-                if(self==self.check_collision(spritegroups.solidObjects)[1]):
-                    self.rect.bottom=self.check_collision(spritegroups.solidObjects)[1].rect.bottom
+                if(self==self.last_vertical_collider):
+                    self.rect.bottom=self.last_vertical_collider.rect.bottom
                 else:
-                    self.rect.bottom=self.check_collision(spritegroups.solidObjects)[1].rect.top+1
+                    self.rect.bottom=self.last_vertical_collider.rect.top+1
                     self.pos_y=self.rect.centery
                     self.vertical_velocity=0
                     self.is_falling=False
@@ -250,6 +249,7 @@ class Wall(pygame.sprite.Sprite):
         self.width=width
         self.height=height
         self.rect=pygame.Rect(pos_x,pos_y,width,height)
+        self.texture=texture
         #going to leave both self.width/height and self.rect.width/height
         #cause i dont remember what would it break
         #just going to continue writing stuff with rect.width from now on
@@ -262,6 +262,9 @@ class Wall(pygame.sprite.Sprite):
             self.image=functions.repeat_texture(self.rect,self.texture,texture_dest)
         
         self.rect.topleft=(self.pos_x,self.pos_y)
+        
+    def udpate(self):
+        self.image=functions.repeat_texture(self.rect,self.texture)
         
 class Weapon(pygame.sprite.Sprite):
     def __init__(self,name, dmg, cooldown, owner, range=25, type=1, attack_duration=0.3):

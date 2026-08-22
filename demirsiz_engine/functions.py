@@ -82,8 +82,8 @@ def repeat_texture(canvas:pygame.Rect,texture:pygame.Surface,dest:pygame.Rect=(0
     
     texture_width=texture.get_width()
     texture_height=texture.get_height()
-    print(texture_height)
-    print(texture_width)
+    #print(texture_height)
+    #print(texture_width)
     offset_x=destination.left
     offset_y=destination.top
     
@@ -93,8 +93,8 @@ def repeat_texture(canvas:pygame.Rect,texture:pygame.Surface,dest:pygame.Rect=(0
     
     width_remainder=width%texture_width
     height_remainder=height%texture_height
-    print(width_remainder)
-    print(height_remainder)
+    #print(width_remainder)
+    #print(height_remainder)
     
     bottom_slice=pygame.Surface.subsurface(texture,(0,0,texture_width,height_remainder))
     right_slice=pygame.Surface.subsurface(texture,(0,0,width_remainder,texture_height))
