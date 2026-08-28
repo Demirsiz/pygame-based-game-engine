@@ -1,8 +1,10 @@
 import pygame
 from . import spritegroups
 from . import functions
+from . import global_variables
 
-SCALE_FACTOR=3
+G=int(global_variables.DEFAULT_SETTINGS["gravity"])
+SCALE_FACTOR=int(global_variables.DEFAULT_SETTINGS["scale_factor"])
 
 class Mob(pygame.sprite.Sprite):
     def __init__(
@@ -13,20 +15,22 @@ class Mob(pygame.sprite.Sprite):
         spd,
         pos_x,
         pos_y,
+        texture=None,
         type=1,
-        shape=1,
-        radius=25,
         width=10,
         length=25,
         color=(0,0,0),
         is_alive=True,
         jump_str=1,
-        g=2000,
+        g=G,
         can_fall=True,
         can_wall_jump=False,
         dying_sprite=None,
+        min_vertical_velocity_for_walljump=350
         ):
-
+        
+        """Fundemental class for creating a mob. Type 1=hostile type 2=passive."""
+        
         pygame.sprite.Sprite.__init__(self)
             
         self.hp=hp 
@@ -36,45 +40,39 @@ class Mob(pygame.sprite.Sprite):
         self.name=name
         self.pos_x=pos_x
         self.pos_y=pos_y
-        self.radius=radius
+        self.texture=texture
         self.width=width
         self.length=length
         self.color=color
         self.base_spd=spd
         self.jump_str=jump_str
-        self.shape=shape
         self.dying_sprite=dying_sprite
+        self.min_vertical_velocity_for_walljump=min_vertical_velocity_for_walljump
+        self.is_alive=is_alive
+        self.can_fall=can_fall
+        self.can_wall_jump=can_wall_jump
+        self.g=g
 
         self.death_duration=1
         self.death_timer=self.death_duration
         self.is_dying=False
-        self.is_alive=True
         self.is_jumping=False
         self.is_falling=False
         self.is_sprinting=False
         self.vertical_velocity=0
-        self.g=g
         self.is_grounded=False
-        self.can_fall=can_fall
-        self.can_wall_jump=can_wall_jump
         self.facing="default"
-        self.texture=self.image
         self.stop=False
         self.last_vertical_collider=None
         self.last_horizontal_collider=None
-           
-    def initial_draw(self):
-        if(self.shape==1):
-            self.image=pygame.Surface((2*self.radius,2*self.radius),pygame.SRCALPHA)
-            self.image.fill((0,0,0,0))
-            pygame.draw.circle(self.image,self.color,(self.radius,self.radius),self.radius)
-        elif(self.shape==2):
-            if(self.texture==None):
-                self.image=pygame.Surface((self.width,self.length),pygame.SRCALPHA)
-                self.image.fill((0,0,255,100))
-                self.texture=self.image
-            else:
-                self.image=self.texture
+        
+        if(self.texture==None):
+            self.image=pygame.Surface((self.width,self.length),pygame.SRCALPHA)
+            self.image.fill((0,0,255,100))
+            self.texture=self.image
+        else:
+            self.image=self.texture
+            
         self.rect=self.image.get_rect()
         self.rect.center=(self.pos_x,self.pos_y)
     
@@ -139,7 +137,7 @@ class Mob(pygame.sprite.Sprite):
             self.is_jumping=True
             self.is_falling=False
             
-        if(self.can_wall_jump==True and self.vertical_velocity>500):
+        if(self.can_wall_jump==True and self.vertical_velocity>self.min_vertical_velocity_for_walljump):
             #print("Wall jump checked. Blocked directions:", blocked_directions)
             if(getattr(self.last_horizontal_collider,"is_wall_jumpable",False)):
                 if("left" in blocked_directions or "right" in blocked_directions):
@@ -217,6 +215,13 @@ class Mob(pygame.sprite.Sprite):
             else:
                 self.pos_y+=self.vertical_velocity*dt
                 self.rect.center=(self.pos_x,self.pos_y)
+                
+        if(self.texture==None):
+            self.image=pygame.Surface((self.width,self.length),pygame.SRCALPHA)
+            self.image.fill((0,0,255,100))
+            self.texture=self.image
+        else:
+            self.image=self.texture
             
     def kill(self):
         #print(f"[{self.name}] KILL CALLED! Old image id: {id(self.image)}")
@@ -342,10 +347,10 @@ class SpriteSheet(pygame.sprite.Sprite):
     def __init__(self,file_path):
         self.file_path=file_path
         self.sprite_sheet=pygame.image.load(file_path).convert_alpha()
-    def get_sprite(self,pos_x,pos_y,width,height):
+    def get_sprite(self,pos_x,pos_y,width,height,scale_factor=SCALE_FACTOR):
         raw_sprite=pygame.Surface((width,height),pygame.SRCALPHA)
-        print(raw_sprite.get_rect())
+        #print(raw_sprite.get_rect())
         raw_sprite.blit(self.sprite_sheet,area=(pos_x,pos_y,width,height))
-        sprite=pygame.transform.scale(raw_sprite,(width*SCALE_FACTOR,height*SCALE_FACTOR))
+        sprite=pygame.transform.scale(raw_sprite,(width*scale_factor,height*scale_factor))
         return sprite
     
