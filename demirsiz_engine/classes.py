@@ -354,3 +354,44 @@ class SpriteSheet(pygame.sprite.Sprite):
         sprite=pygame.transform.scale(raw_sprite,(width*scale_factor,height*scale_factor))
         return sprite
     
+class Button(pygame.sprite.Sprite):
+    def __init__(self, rect:pygame.Rect, text=None, texture=None, does_texture_repeat=False):
+        pygame.sprite.Sprite.__init__(self)
+        
+        self.rect=pygame.Rect(rect)
+        self.texture=texture
+        
+        self.font=pygame.font.SysFont("arial",24)
+        self.text=self.font.render(text,True,color="black")
+        
+        self.image=pygame.Surface((self.rect.w,self.rect.h),pygame.SRCALPHA)
+        
+        self.is_pressed=False
+        self.is_highlighted=False
+        
+        if(self.texture==None):
+            self.image.fill("gray")
+            self.texture=self.image.copy()
+        elif(does_texture_repeat==False):
+            self.image=self.texture
+        elif(does_texture_repeat==True):
+            self.image=functions.repeat_texture(self.rect,self.texture)
+            self.texture=self.image.copy()
+            
+        self.image.blit(self.text,((self.rect.w-self.text.get_width())/2,(self.rect.h-self.text.get_height())/2))
+        self.highlight_image=self.image.copy()
+        self.highlight_image.fill("red")
+        self.pressed_image=self.image.copy()
+        self.pressed_image.fill("green")
+        self.default_image=self.image.copy()
+            
+    def update(self):
+        if(self.is_highlighted==True):
+            self.image=self.highlight_image
+            if(self.is_pressed==True):
+                self.image=self.pressed_image
+        else:
+            self.is_pressed=False
+            self.image=self.default_image
+                
+        
