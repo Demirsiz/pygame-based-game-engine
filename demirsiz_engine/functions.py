@@ -1,5 +1,6 @@
 import math
 import pygame
+from . import global_variables
 from . import spritegroups
 from . import classes
 
@@ -122,3 +123,11 @@ def calculate_borders(screen,border_thickness,border_texture=None):
     right_border=classes.Wall(screen.get_width()-border_thickness,0,border_thickness,screen.get_height(),is_wall_jumpable=True,texture=pygame.transform.rotate(border_texture,90))
 
     return (top_border,bottom_border,left_border,right_border)
+
+def delay(clock,duration):
+    timer=duration*100
+    dt=clock.clock.tick(clock.max_fps)/1000
+    while(timer>=0):
+        timer-=dt
+    dt=clock.clock.tick(clock.max_fps)/1000
+    return dt

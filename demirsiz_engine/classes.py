@@ -5,6 +5,7 @@ from . import global_variables
 
 G=int(global_variables.DEFAULT_SETTINGS["gravity"])
 SCALE_FACTOR=int(global_variables.DEFAULT_SETTINGS["scale_factor"])
+MAX_FPS=int(global_variables.DEFAULT_SETTINGS["max_fps"])
 
 class Mob(pygame.sprite.Sprite):
     def __init__(
@@ -361,13 +362,13 @@ class Button(pygame.sprite.Sprite):
         self.rect=pygame.Rect(rect)
         self.texture=texture
         
-        self.font=pygame.font.SysFont("arial",24)
+        self.font=pygame.font.SysFont("arial",24,True)
         self.text=self.font.render(text,True,color="black")
         
         self.image=pygame.Surface((self.rect.w,self.rect.h),pygame.SRCALPHA)
         
         self.is_pressed=False
-        self.is_highlighted=False
+        self.is_hover=False
         
         if(self.texture==None):
             self.image.fill("gray")
@@ -379,19 +380,27 @@ class Button(pygame.sprite.Sprite):
             self.texture=self.image.copy()
             
         self.image.blit(self.text,((self.rect.w-self.text.get_width())/2,(self.rect.h-self.text.get_height())/2))
-        self.highlight_image=self.image.copy()
-        self.highlight_image.fill("red")
+        self.hover_image=self.image.copy()
+        self.hover_image.fill("red")
         self.pressed_image=self.image.copy()
         self.pressed_image.fill("green")
         self.default_image=self.image.copy()
             
-    def update(self):
-        if(self.is_highlighted==True):
-            self.image=self.highlight_image
+    def update(self,cursor_position):
+        if(pygame.Rect.collidepoint(self.rect,cursor_position)):
+            self.is_hover=True
+        else:
+            self.is_hover=False
+        
+        if(self.is_hover==True):
+            self.image=self.hover_image
             if(self.is_pressed==True):
                 self.image=self.pressed_image
         else:
             self.is_pressed=False
             self.image=self.default_image
                 
-        
+class ClockWrapper():
+    def __init__(self):
+        self.clock=pygame.time.Clock()
+        self.max_fps=MAX_FPS
